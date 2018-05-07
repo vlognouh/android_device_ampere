@@ -1,0 +1,63 @@
+allow init self:capability { sys_module };
+# init.hikey.usb.rc writes to /config/* to set up USB
+allow init configfs:dir create_dir_perms;
+allow init configfs:file write;
+allow init configfs:lnk_file { create unlink };
+# for symlink /sdcard /mnt/sdcard
+allow init tmpfs:lnk_file create;
+allow init serial_device:chr_file {read write};
+allow init init:capability {dac_read_search};
+allow init cgroup:file {create};
+allow kernel device:dir {write};
+allow kernel kernel:capability {mknod};
+allow kernel device:dir {add_name create};
+allow kernel device:blk_file {create setattr};
+allow kernel device:chr_file {create setattr};
+#allow init unlabeled:system {module_load};
+allow init init:capability {sys_module};
+allow init sysfs:dir {add_name};
+allow init sysfs:file {create};
+allow system_app system_file:system module_load;
+
+allow hwservicemanager unlabeled:dir getattr;
+allow servicemanager unlabeled:dir getattr;
+allow logd unlabeled:dir getattr;
+allow logd unlabeled:dir search;
+
+allow adbd kernel:system module_request;
+allow netd usermodehelper:file {read open};
+
+allow shell logdr_socket:sock_file getattr;
+allow netd kernel:system module_request;
+
+allow vold vold:capability dac_read_search;
+
+allow toolbox sysfs:dir {getattr open read};
+allow toolbox sysfs:file {getattr open read};
+#allow toolbox rtc_device:chr_file {getattr open read};
+allow shell graphics_device:chr_file {open ioctl};
+allow zygote property_socket:sock_file write;
+allow zygote init:unix_stream_socket connectto;
+dontaudit netd self:capability sys_module;
+allow system_server priv_app:file write;
+allow system_server untrusted_app:file write;
+allow system_server platform_app:file write;
+allow system_server system_app:file write;
+allow system_server isolated_app:file write;
+allow system_server bluetooth:file write;
+allow init configfs:dir create_dir_perms;
+allow init configfs:file write;
+allow init configfs:lnk_file { create unlink };
+# for symlink /sdcard /mnt/sdcard
+allow init tmpfs:lnk_file create;
+allow shell self:dir read;
+
+allow surfaceflinger unlabeled:file map;
+allow surfaceflinger unlabeled:dir read;
+allow surfaceflinger unlabeled:file read;
+
+allow crash_dump unlabeled:file {open read getattr map};
+allow zygote unlabeled:file {read execute};
+allow surfaceflinger unlabeled:file {open getattr};
+allow zygote unlabeled:dir read;
+allow init tmpfs:lnk_file create_file_perms;
