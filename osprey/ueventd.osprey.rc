@@ -1,0 +1,7 @@
+# Graphics
+/dev/ion                0666   system     graphics
+/sys/kernel/debug/sync/sw_sync            0660   system     graphics
+/dev/dri/card*          0660   system     graphics
+/dev/dri/control*       0660   system     graphics
+/dev/dri/render*        0666   system     graphics
+/dev/graphics/fb*	0666   system     graphics

@@ -1,0 +1,86 @@
+import init.common.usb.rc
+
+on init
+    # mount debugfs
+    mount debugfs /sys/kernel/debug /sys/kernel/debug mode=0755
+
+on init
+    # disable transparent huge pages
+    write /sys/kernel/mm/transparent_hugepage/enabled "never"
+
+    setprop ro.hardware.gralloc gbm
+    setprop ro.hardware.hwcomposer drm
+    
+    # Disabled virtual memory randomization
+    # (if randomization is enabled the AEM-JIT will have a lower cache hit rate)
+    write /proc/sys/kernel/randomize_va_space 0
+
+    # enable armv8_deprecated instruction hooks
+#    write /proc/sys/abi/swp 1
+
+on fs
+    mount_all /fstab.${ro.hardware}
+#    setprop ro.crypto.fuse_sdcard true
+    setprop ro.crypto.fuse_sdcard false	
+
+on post-fs-data
+    mkdir /data/media 0770 media_rw media_rw
+
+    # Set SELinux security contexts for files used by lava.
+    restorecon_recursive /data/local/tmp/lava
+
+on post-fs
+    symlink /sdcard /storage/sdcard0
+
+#    insmod /system/modules/chash.ko
+#    insmod /system/modules/gpu-sched.ko
+#    insmod /system/modules/ttm.ko
+#    insmod /system/modules/amdgpu.ko
+
+    chmod 0666 /dev/ion
+    chmod 0666 /dev/graphics/fb0
+    chmod 0666 /sys/kernel/debug/sync/sw_sync
+    chmod 0666 /dev/dri/card0
+    chmod 0666 /dev/dri/renderD128
+on boot
+    setprop ARGH ARGH
+    setprop ro.radio.use-ppp no
+    setprop ro.build.product generic
+    setprop ro.product.device generic
+
+# fake some battery state
+    setprop status.battery.state Slow
+    setprop status.battery.level 5
+    setprop status.battery.level_raw  50
+    setprop status.battery.level_scale 9
+
+# Set Display density
+    setprop ro.sf.lcd_density 160
+
+# Set supported opengles version
+    setprop ro.opengles.version 196608
+
+# change permissions for process groups
+ https://bugs.launchpad.net/bugs/1037611
+    chmod 0660 /dev/cpuctl
+
+# enable Google-specific location features,
+# like NetworkLocationProvider and LocationCollector
+    setprop ro.com.google.locationfeatures 1
+
+# enable test harness
+    setprop ro.test_harness true
+
+    # Setup paths used for socket communication with the dhcp daemon (dhcpd)
+    mkdir /data/misc/dhcp 0770 dhcp dhcp
+    chown dhcp dhcp /data/misc/dhcp
+
+service dhcpcd_eth0 /system/bin/dhcpcd-6.8.2 -ABDKL
+    class main
+    group dhcp
+    oneshot
+
+service iprenew_eth0 /system/bin/dhcpcd-6.8.2 -n
+    class late_start
+    disabled
+    oneshot
